@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+</head>
+<body>
+    <div id="app">
+        <h1>Login to Your Account</h1>
+        <button id="login-button">Login with Google</button>
+    </div>
+
+    <script>
+        document.getElementById('login-button').addEventListener('click', () => {
+            // Redirect to the server's /auth route to start the OAuth2 flow
+            window.location.href = '/auth';
+        });
+    </script>
+</body>
+</html>

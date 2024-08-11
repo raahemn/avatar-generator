@@ -11,8 +11,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/firestore": "^7.9.0",
+    "@google-cloud/storage": "^7.12.1",
+    "@types/express-session": "^1.18.0",
+    "@types/multer": "^1.4.11",
+    "axios": "^1.7.3",
+    "crypto": "^1.0.1",
     "ejs": "^3.1.10",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "firebase-admin": "^12.3.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "querystring": "^0.2.1"
   },
   "devDependencies": {
     "@types/ejs": "^3.1.5",

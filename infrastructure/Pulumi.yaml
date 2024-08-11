@@ -1,9 +1,9 @@
-name: avatars
+name: avatar-generator
 runtime:
   name: nodejs
   options:
     packagemanager: npm
-description: A minimal TypeScript Pulumi program
+description: A program to generate AI avatars.
 config:
   pulumi:tags:
     value:

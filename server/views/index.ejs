@@ -7,10 +7,37 @@
 </head>
 <body>
     <h1>Welcome to My Stable Diffusion App</h1>
-    <form action="/generate" method="post" enctype="multipart/form-data">
-        <input type="file" name="photo" accept="image/*">
-        <input type="text" name="prompt" placeholder="Enter your prompt">
+    <form action="/image/generate" method="post" enctype="multipart/form-data">
+        <input type="file" name="photo" accept="image/*" required>
+        <input type="text" name="prompt" placeholder="Enter your prompt" required>
+        
+
+        <!-- Checkbox to select whether to use ControlNet -->
+        <label for="useControlNet">Use ControlNet</label>
+        <input type="checkbox" id="useControlNet" name="useControlNet" onchange="toggleControlNet()">
+        
+        <!-- ControlNet file input, hidden by default -->
+        <div id="controlNetSection" style="display: none;">
+            <input type="file" name="controlNetImage" accept="image/*">
+        </div>
+        
         <button type="submit">Generate Image</button>
     </form>
+    
+    <form action="/auth/logout" method="get">
+        <button type="submit">Logout</button>
+    </form>
+
+    <script>
+        function toggleControlNet() {
+            const controlNetSection = document.getElementById('controlNetSection');
+            const useControlNet = document.getElementById('useControlNet');
+            if (useControlNet.checked) {
+                controlNetSection.style.display = 'block';
+            } else {
+                controlNetSection.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

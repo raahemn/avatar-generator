@@ -1,12 +1,13 @@
 {
-    "name": "avatars",
+    "name": "avatar-generator",
     "main": "index.ts",
     "devDependencies": {
         "@types/node": "^18",
         "typescript": "^5.0.0"
     },
     "dependencies": {
-        "@pulumi/gcp": "^7.29.0",
-        "@pulumi/pulumi": "^3.113.0"
+        "@pulumi/gcp": "^7.35.0",
+        "@pulumi/pulumi": "^3.113.0",
+        "dotenv": "^16.4.5"
     }
 }
