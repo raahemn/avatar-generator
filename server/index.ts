@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import { router as authRouter } from "./routes/authRoute";
 import { router as imageRouter } from "./routes/imageRoute";
+import { router as jobRouter } from "./routes/jobRoute";
 import checkAuth from "./middleware/checkAuth";
 
 const app = express();
@@ -35,7 +36,25 @@ app.get("/login", (req, res) => {
 // Routes
 app.use("/auth", authRouter);
 app.use("/image", checkAuth, imageRouter);
+app.use("/jobs", checkAuth, jobRouter);
 
+// app.get("/jobs", async (req, res) => {
+//     // Dummy jobs data
+//     // const jobs = [
+//     //     { jobId: '1', status: 'completed' },
+//     //     { jobId: '2', status: 'pending' },
+//     //     { jobId: '3', status: 'completed' },
+//     //     { jobId: '4', status: 'pending' }
+//     // ];
+
+//     // // Render the jobs EJS page with dummy jobs data
+//     // res.render("jobs", { 
+//     //     title: "Jobs",
+//     //     jobs: jobs,
+//     //     selectedJobGenerations: [],  // No generations for this dummy example
+//     //     selectedJobId: null           // No selected job for this dummy example
+//     // });
+// });
 
 const PORT = process.env.PORT || 3000;
 

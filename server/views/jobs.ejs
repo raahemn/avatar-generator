@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Generator - Job Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .job-list {
+            margin-bottom: 20px; 
+        }
+        .job-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .job-item.completed {
+            background-color: #f4f4f4;
+        }
+        .job-item .status {
+            font-weight: bold;
+        }
+        .job-item .view-generations {
+            margin-top: 10px;
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+        .generations-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .generations-grid img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Current Jobs</h1>
+    <div class="job-list">
+        <% if (jobs.length>0) {jobs.forEach(job => { %>
+            <div class="job-item <%= job.status === 'completed' ? 'completed' : '' %>">
+                <p><strong>Job ID:</strong> <%= job.job_id %></p>
+                <p class="status"><%= job.status %></p>
+                <% if (job.status === 'completed') { %>
+                    <a href="/generations/<%= job.jobId %>" class="view-generations">View Generations</a>
+                <% } %>
+            </div>
+        <% })} else {  %>
+            <p>No jobs found.</p>
+            <% } %>
+    </div>
+
+    <!-- Include a section for displaying grid of images if a job is selected -->
+    <% if (selectedJobGenerations && selectedJobGenerations.length > 0) { %>
+        <h2>Generations for Job ID: <%= selectedJobId %></h2>
+        <div class="generations-grid">
+            <% selectedJobGenerations.forEach(image => { %>
+                <img src="<%= image %>" alt="Generated Image">
+            <% }) %>
+        </div>
+    <% } %>
+</body>
+</html>

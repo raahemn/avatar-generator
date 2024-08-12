@@ -21,6 +21,8 @@
             <input type="file" name="controlNetImage" accept="image/*">
         </div>
         
+        <input type="number" name="numGenerations" placeholder="Num of Generations" required>
+
         <button type="submit">Generate Image</button>
     </form>
     
@@ -29,6 +31,9 @@
     </form>
     <form action="/image/library" method="get">
         <button type="submit">View Library</button>
+    </form>
+    <form action="/jobs" method="get">
+        <button type="submit">View Jobs</button>
     </form>
 
     <script>

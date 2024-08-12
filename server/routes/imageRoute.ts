@@ -16,8 +16,8 @@ router.post(
     upload.fields([{ name: "photo" }, { name: "controlNetImage" }]),
     async (req: any, res: Response) => {
         try {
-            console.log("req", req.body);
-            console.log("FILES", req.files);
+            // console.log("req", req.body);
+            // console.log("FILES", req.files);
 
             const token = req.cookies.token;
 
@@ -26,10 +26,10 @@ router.post(
             const user = JSON.parse(JSON.stringify(decoded)).email;
             console.log("user", user);
 
-            const { prompt, useControlNet } = req.body;
-            console.log("prompt", prompt);
-            console.log("useControlNet", useControlNet);
-            console.log("req.files", req.files);
+            const { prompt, useControlNet, numGenerations } = req.body;
+            // console.log("prompt", prompt);
+            // console.log("useControlNet", useControlNet);
+            // console.log("req.files", req.files);
 
             if (!prompt) {
                 return res.status(400).send("Prompt is required.");
@@ -88,7 +88,7 @@ router.post(
                 negative_prompt:
                     "(blurry) (unclear) (poor anatomy) (weird anatomy)",
                 seed: -1,
-                batch_size: 1,
+                batch_size: numGenerations,
                 override_settings: {
                     sd_model_checkpoint:
                         "dreamshaper_8.safetensors [879db523c3]",
@@ -160,50 +160,72 @@ router.post(
 
             console.log(response.data);
 
-            const recvd_base64 = response.data.images[0];
+            //Assuming Runpod Async Run returns only job id and status
+            const job_id = response.data.id
+            const status = response.data.status
 
-            //here, upload the image to the google cloud storage bucket and store its metadata in the firestore database in the images collection.
-            const storage = new Storage();
-            const bucket = storage.bucket("mod2b-bucket");
-
-            const buffer = Buffer.from(recvd_base64, "base64");
-
-            const filename = `image-${Date.now()}.jpg`;
-            const file = bucket.file(filename);
-
-            file.save(
-                buffer,
-                {
-                    metadata: {
-                        contentType: "image/jpeg", // Update this based on your image type
-                    },
-                },
-                (err) => {
-                    if (err) {
-                        console.error("Error uploading file:", err);
-                    } else {
-                        console.log("File uploaded successfully.");
-                    }
-                }
-            );
-
-            //save metadata of image in the images collection in firestore
+            //Now, I want to store the job id and status in the firestore database
             const firestore = new Firestore({
                 projectId: process.env.PROJECT_ID,
                 databaseId: process.env.DATABASE_ID,
             });
 
-            const imagesCollection = firestore.collection("images");
+            const jobsCollection = firestore.collection("jobs");
 
-            const newImageRef = await imagesCollection.add({
+            const newJobRef = await jobsCollection.add({
                 user,
-                filename,
-                url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
+                job_id,
+                status,
                 createdAt: new Date(),
             });
 
-            //save this as an actual image file
-            fs.writeFileSync(`output.jpg`, Buffer.from(recvd_base64, "base64"));
+            res.send({ job_id, status });
+
+
+            const images = response.data.images;
+            const storage = new Storage();
+            const bucket = storage.bucket("mod2b-bucket");
+           
+
+            const imagesCollection = firestore.collection("images");
+
+            // Process each image
+            for (let i = 0; i < images.length; i++) {
+                const recvd_base64 = images[i];
+                const buffer = Buffer.from(recvd_base64, "base64");
+                const filename = `image-${user}-${Date.now()}-${i}.jpg`; // Add index to filename
+                const file = bucket.file(filename);
+
+               
+                await new Promise((resolve, reject) => {
+                    file.save(
+                        buffer,
+                        {
+                            metadata: {
+                                contentType: "image/jpeg", // Update this based on your image type
+                            },
+                        },
+                        (err) => {
+                            if (err) {
+                                console.error("Error uploading file:", err);
+                            } else {
+                                console.log(
+                                    "File uploaded successfully:",
+                                    filename
+                                );
+                            }
+                        }
+                    );
+                });
+
+               
+                await imagesCollection.add({
+                    user,
+                    filename,
+                    url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
+                    createdAt: new Date(),
+                });
+            }
 
             res.send(prompt);
         } catch (error) {
@@ -246,10 +268,9 @@ router.get("/library", async (req, res) => {
     for (const file of files) {
         console.log("file", file);
         const [url] = await bucket.file(file).getSignedUrl({
-            version: 'v4',
+            version: "v4",
             action: "read",
             expires: Date.now() + 60 * 60 * 1000, // 1 hour
-            
         });
         urls.push(url);
     }
@@ -278,3 +299,47 @@ export { router };
 //         alwayson_scripts: { reactor: { args: reactor_args } },
 //     },
 // };
+
+
+
+            // const recvd_base64 = response.data.images[0];
+
+            // //here, upload the image to the google cloud storage bucket and store its metadata in the firestore database in the images collection.
+            // const storage = new Storage();
+            // const bucket = storage.bucket("mod2b-bucket");
+
+            // const buffer = Buffer.from(recvd_base64, "base64");
+
+            // const filename = `image-${user}-${Date.now()}.jpg`;
+            // const file = bucket.file(filename);
+
+            // file.save(
+            //     buffer,
+            //     {
+            //         metadata: {
+            //             contentType: "image/jpeg", // Update this based on your image type
+            //         },
+            //     },
+            //     (err) => {
+            //         if (err) {
+            //             console.error("Error uploading file:", err);
+            //         } else {
+            //             console.log("File uploaded successfully.");
+            //         }
+            //     }
+            // );
+
+            // //save metadata of image in the images collection in firestore
+            // const firestore = new Firestore({
+            //     projectId: process.env.PROJECT_ID,
+            //     databaseId: process.env.DATABASE_ID,
+            // });
+
+            // const imagesCollection = firestore.collection("images");
+
+            // const newImageRef = await imagesCollection.add({
+            //     user,
+            //     filename,
+            //     url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
+            //     createdAt: new Date(),
+            // });
