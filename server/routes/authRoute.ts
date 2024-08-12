@@ -110,10 +110,14 @@ router.get("/callback", async (req, res) => {
         });
 
         res.cookie("token", token, {
-            httpOnly: false,
+            httpOnly: true,
+            secure: false,
         });
 
-        res.redirect("/home");
+        console.log("setting token", token);
+
+        // Redirect to the homepage with the cookie
+        res.redirect("/");
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Authentication failed" });
@@ -122,37 +126,29 @@ router.get("/callback", async (req, res) => {
 
 //Logout Route
 router.get("/logout", async (req, res) => {
-    const idToken = req.cookies.idToken;
+    // const idToken = req.cookies.idToken;
 
-    // Clear the cookie that stores the idToken
-    // res.clearCookie("idToken", {
-    //     httpOnly: true,
-    //     secure: process.env.NODE_ENV === "production",
-    // });
+    console.log("Inside logout");
+    res.clearCookie("token");
 
-    // Clear the session (if using session-based authentication)
-    // req.session.destroy((err) => {
-    //     if (err) {
-    //         console.error("Failed to destroy session:", err);
-    //     }
-    // });
+    //in order to revoke access token, i will have to store idtoken in cookie as well which Ill do if i have enough time for extra security otherwise this is fine
 
-    try {
-        await axios.post("https://oauth2.googleapis.com/revoke", null, {
-            params: {
-                token: idToken,
-            },
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-        });
-    } catch (error) {
-        console.error("Failed to revoke token:", error);
-    }
+    // try {
+    //     await axios.post("https://oauth2.googleapis.com/revoke", null, {
+    //         params: {
+    //             token: idToken,
+    //         },
+    //         headers: {
+    //             "Content-Type": "application/x-www-form-urlencoded",
+    //         },
+    //     });
+    // } catch (error) {
+    //     console.error("Failed to revoke token:", error);
+    // }
 
     // Redirect to the login page or homepage
 
-    res.redirect("/auth");
+    res.redirect("/login");
 });
 
 export { router };

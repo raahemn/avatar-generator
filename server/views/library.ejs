@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library</title>
+</head>
+<body>
+    <h1>Image Library</h1>
+    <div>
+        <% if (urls.length > 0) { %>
+            <ul>
+                <% urls.forEach(function(url) { %>
+                    <li><img src="<%= url %>" alt="User Image" style="max-width: 100%; height: auto;"/></li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p>No images found.</p>
+        <% } %>
+    </div>
+</body>
+</html>

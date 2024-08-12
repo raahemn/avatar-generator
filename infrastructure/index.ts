@@ -12,12 +12,13 @@ console.log(`Project: ${projectName}`);
 console.log(`Stack: ${stackName}`);
 
 
-const { serviceAccount, serviceAccountKey, iamBinding } = createServiceAccount(projectName, stackName);
+const { serviceAccount, serviceAccountKey, storageAdminBinding, firestoreUserBinding, runAdminBinding  } = createServiceAccount(projectName, stackName);
 
 const firestore = createFirestore(projectName, stackName);
 const bucket = createStorageBucket(projectName, stackName);
 
 
 export const serviceAccountEmail = serviceAccount.email;
+export const keyJson = serviceAccountKey.privateKey.apply((key) => Buffer.from(key, 'base64').toString('utf8'));
 export const bucketUrl = bucket.url;
 export const firestoreId = firestore.id;

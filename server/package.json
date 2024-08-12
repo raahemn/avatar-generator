@@ -13,9 +13,11 @@
   "dependencies": {
     "@google-cloud/firestore": "^7.9.0",
     "@google-cloud/storage": "^7.12.1",
+    "@types/cookie-parser": "^1.4.7",
     "@types/express-session": "^1.18.0",
     "@types/multer": "^1.4.11",
     "axios": "^1.7.3",
+    "cookie-parser": "^1.4.6",
     "crypto": "^1.0.1",
     "ejs": "^3.1.10",
     "express": "^4.19.2",

@@ -3,6 +3,9 @@ import multer from "multer";
 import axios from "axios";
 import {} from "multer";
 import fs from "fs";
+import { Storage } from "@google-cloud/storage";
+import { Firestore } from "@google-cloud/firestore";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
@@ -15,6 +18,13 @@ router.post(
         try {
             console.log("req", req.body);
             console.log("FILES", req.files);
+
+            const token = req.cookies.token;
+
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+
+            const user = JSON.parse(JSON.stringify(decoded)).email;
+            console.log("user", user);
 
             const { prompt, useControlNet } = req.body;
             console.log("prompt", prompt);
@@ -78,6 +88,7 @@ router.post(
                 negative_prompt:
                     "(blurry) (unclear) (poor anatomy) (weird anatomy)",
                 seed: -1,
+                batch_size: 1,
                 override_settings: {
                     sd_model_checkpoint:
                         "dreamshaper_8.safetensors [879db523c3]",
@@ -120,7 +131,7 @@ router.post(
             }
 
             // Construct the request body for Runpod API
-            console.log("FInal request body", runpod_body);
+            console.log("Final request body", runpod_body);
 
             // const apiResponse = await axios.post(
             //     "https://api.runpod.ai/v2/baj4a9hr0n43pt/run",
@@ -143,7 +154,7 @@ router.post(
             // res.redirect(`/result?imageUrl=${encodeURIComponent(imageUrl)}`);
 
             let response = await axios.post(
-                "https://1ae6abb0d016777eee.gradio.live/sdapi/v1/txt2img",
+                "https://0f5ad6285e5316cb86.gradio.live/sdapi/v1/txt2img",
                 runpod_body
             );
 
@@ -152,12 +163,47 @@ router.post(
             const recvd_base64 = response.data.images[0];
 
             //here, upload the image to the google cloud storage bucket and store its metadata in the firestore database in the images collection.
+            const storage = new Storage();
+            const bucket = storage.bucket("mod2b-bucket");
 
+            const buffer = Buffer.from(recvd_base64, "base64");
 
+            const filename = `image-${Date.now()}.jpg`;
+            const file = bucket.file(filename);
 
+            file.save(
+                buffer,
+                {
+                    metadata: {
+                        contentType: "image/jpeg", // Update this based on your image type
+                    },
+                },
+                (err) => {
+                    if (err) {
+                        console.error("Error uploading file:", err);
+                    } else {
+                        console.log("File uploaded successfully.");
+                    }
+                }
+            );
+
+            //save metadata of image in the images collection in firestore
+            const firestore = new Firestore({
+                projectId: process.env.PROJECT_ID,
+                databaseId: process.env.DATABASE_ID,
+            });
+
+            const imagesCollection = firestore.collection("images");
+
+            const newImageRef = await imagesCollection.add({
+                user,
+                filename,
+                url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
+                createdAt: new Date(),
+            });
 
             //save this as an actual image file
-            fs.writeFileSync("output.png", Buffer.from(recvd_base64, "base64"));
+            fs.writeFileSync(`output.jpg`, Buffer.from(recvd_base64, "base64"));
 
             res.send(prompt);
         } catch (error) {
@@ -173,6 +219,42 @@ router.get("/result", (req, res) => {
     const { imageUrl } = req.query;
 
     res.render("result", { title: "Generated Image", imageUrl });
+});
+
+router.get("/library", async (req, res) => {
+    const user = req.body.user;
+
+    console.log("user", user);
+
+    //first, get the filenames of all the images that belong to this user from the firestore collection
+    const firestore = new Firestore({
+        projectId: process.env.PROJECT_ID,
+        databaseId: process.env.DATABASE_ID,
+    });
+
+    const imagesCollection = firestore.collection("images");
+
+    //find images that belong to this user
+    const filedata = await imagesCollection.where("user", "==", user).get();
+
+    const files = filedata.docs.map((doc) => doc.data().filename);
+
+    const storage = new Storage();
+    const bucket = storage.bucket("mod2b-bucket");
+    const urls: string[] = [];
+
+    for (const file of files) {
+        console.log("file", file);
+        const [url] = await bucket.file(file).getSignedUrl({
+            version: 'v4',
+            action: "read",
+            expires: Date.now() + 60 * 60 * 1000, // 1 hour
+            
+        });
+        urls.push(url);
+    }
+
+    res.render("library", { urls });
 });
 
 export { router };
