@@ -26,7 +26,7 @@ app.use(cookieParser());
 
 app.get("/", checkAuth, (req, res) => {
     console.log("home req", req.cookies);
-    res.render("index", { title: "Avatar Generator" });
+    res.render("index", { title: "Home" });
 });
 
 app.get("/login", (req, res) => {

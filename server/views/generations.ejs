@@ -11,9 +11,9 @@
             padding: 0;
             background-color: #f4f4f4;
         }
-        h1 {
+        h1, h2 {
             text-align: center;
-            margin-top: 20px;
+            color: #333;
         }
         .image-grid {
             display: grid;
@@ -29,6 +29,10 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .image-grid img:hover {
+            transform: scale(1.05);
         }
         .no-images {
             text-align: center;

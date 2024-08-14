@@ -4,19 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+            margin-bottom: 30px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        li {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+        }
+        p {
+            text-align: center;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <h1>Image Library</h1>
-    <div>
-        <% if (urls.length > 0) { %>
-            <ul>
-                <% urls.forEach(function(url) { %>
-                    <li><img src="<%= url %>" alt="User Image" style="max-width: 100%; height: auto;"/></li>
-                <% }); %>
-            </ul>
-        <% } else { %>
-            <p>No images found.</p>
-        <% } %>
+    <div class="container">
+        <h1>Image Library</h1>
+        <div>
+            <% if (urls.length > 0) { %>
+                <ul>
+                    <% urls.forEach(function(url) { %>
+                        <li><img src="<%= url %>" alt="User Image"/></li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p>No images found.</p>
+            <% } %>
+        </div>
     </div>
 </body>
 </html>

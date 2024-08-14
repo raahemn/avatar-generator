@@ -4,38 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+            margin-bottom: 30px;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="file"],
+        input[type="text"],
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="file"] {
+            border: none;
+        }
+        button {
+            background-color: #4285F4;
+            border: none;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #357ae8;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #controlNetSection {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to My Stable Diffusion App</h1>
-    <form action="/image/generate" method="post" enctype="multipart/form-data">
-        <input type="file" name="photo" accept="image/*" required>
-        <input type="text" name="prompt" placeholder="Enter your prompt" required>
-        <input type="text" name="negativePrompt" placeholder="Enter negative prompt" required>
-        
+    <div class="container">
+        <h1>Welcome to the Avatar Generator App!</h1>
+        <form action="/image/generate" method="post" enctype="multipart/form-data">
+            <label for="photo">Upload a face image:</label>
+            <input type="file" name="photo" accept="image/*">
+            <input type="text" name="prompt" placeholder="Enter your prompt" required>
+            <input type="text" name="negativePrompt" placeholder="Enter negative prompt" required>
+            
+            <!-- Checkbox to select whether to use ControlNet -->
+            <label for="useControlNet">
+                
+                <input type="checkbox" id="useControlNet" name="useControlNet" onchange="toggleControlNet()">
+                Use ControlNet
+            </label>
+            
+            <!-- ControlNet file input, hidden by default -->
+            <div id="controlNetSection" style="display: none;">
+                <label for="controlNetImage">Upload a Pose:</label>
+                <input type="file" name="controlNetImage" accept="image/*">
+            </div>
+            
+            <input type="number" name="numGenerations" min="1" max="100" placeholder="Num of Generations" required>
 
-        <!-- Checkbox to select whether to use ControlNet -->
-        <label for="useControlNet">Use ControlNet</label>
-        <input type="checkbox" id="useControlNet" name="useControlNet" onchange="toggleControlNet()">
-        
-        <!-- ControlNet file input, hidden by default -->
-        <div id="controlNetSection" style="display: none;">
-            <input type="file" name="controlNetImage" accept="image/*">
-        </div>
-        
-        <input type="number" name="numGenerations" placeholder="Num of Generations" required>
 
-        <button type="submit">Generate Image</button>
-    </form>
-    
-    <form action="/auth/logout" method="get">
-        <button type="submit">Logout</button>
-    </form>
-    <form action="/image/library" method="get">
-        <button type="submit">View Library</button>
-    </form>
-    <form action="/jobs" method="get">
-        <button type="submit">View Jobs</button>
-    </form>
+            <button type="submit">Generate Image</button>
+        </form>
+        
+        <form action="/jobs" method="get">
+            <button type="submit" style="background-color: rgba(18, 134, 18, 0.726);"> View Jobs</button>
+        </form>
+        <form action="/image/library" method="get">
+            <button type="submit" style="background-color: rgba(18, 134, 18, 0.726);"">View Library</button>
+        </form>
+        <form action="/auth/logout" method="get">
+            <button type="submit" style="background-color: rgba(206, 30, 30, 0.907);">Logout</button>
+        </form>
+    </div>
 
     <script>
         function toggleControlNet() {

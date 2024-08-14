@@ -136,8 +136,6 @@ router.post(
             // Construct the request body for Runpod API
             console.log("Final request body", runpod_body);
 
-           
-
             // console.log("API response:", apiResponse.data);
 
             // const job_id = apiResponse.data.job_id;
@@ -172,8 +170,6 @@ router.post(
 
             const jobsCollection = firestore.collection("jobs");
 
-            
-
             const newJobRef = await jobsCollection.add({
                 user,
                 job_id,
@@ -182,7 +178,7 @@ router.post(
                 createdAt: new Date(),
             });
 
-            res.redirect("/jobs")
+            res.redirect("/jobs");
         } catch (error) {
             console.error("Error generating image:", error);
             res.status(500).send(

@@ -8,7 +8,12 @@ const router = express.Router();
 
 dotenv.config();
 
-async function processImages(images: string[], user: string, job_id: string) {
+async function processImages(
+    images: string[],
+    user: string,
+    job_id: string,
+    prompt: string
+) {
     const storage = new Storage();
     const bucket = storage.bucket("mod2b-bucket");
     const firestore = new Firestore({
@@ -45,6 +50,7 @@ async function processImages(images: string[], user: string, job_id: string) {
             user,
             filename,
             job_id,
+            prompt,
             url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
             createdAt: new Date(),
         });
@@ -67,7 +73,7 @@ async function fetchJobs(user: string) {
 
     const jobs = jobs_data.docs.map((doc) => doc.data());
 
-    console.log("jobs fetched", jobs);
+    // console.log("jobs fetched", jobs);
 
     return jobs;
 }
@@ -101,7 +107,7 @@ async function checkAndProcessJobs() {
 
         if (statusData === "COMPLETED") {
             const images = response.data.output.images;
-            await processImages(images, user, jobId);
+            await processImages(images, user, jobId, jobData.prompt);
             await firestore
                 .collection("jobs")
                 .doc(jobId)
@@ -109,9 +115,6 @@ async function checkAndProcessJobs() {
         }
     });
 }
-
-// Run the background worker every few minutes
-setInterval(checkAndProcessJobs, 5 * 60 * 1000); // Run every 5 minutes
 
 async function updateJobStatusByJobId(jobId: string, statusData: string) {
     const firestore = new Firestore({
@@ -177,7 +180,7 @@ router.get("/status", async (req, res) => {
                     //Get the base64 images and store them in bucket, with metadata in firestore
 
                     const images = response.data.output.images;
-                    await processImages(images, user, jobId);
+                    await processImages(images, user, jobId, job.prompt);
                     console.log("updating job status to COMPLETED");
                     job.status = statusData;
                 } else {
@@ -230,11 +233,16 @@ router.get("/generations/:id", async (req, res) => {
         urls.push(url);
     }
 
+    // console.log("GEn prompt", prompt);
+
     res.render("generations", {
         urls: urls,
         job_id: id,
         prompt: prompt,
     });
 });
+
+// Run the background worker every few minutes
+setInterval(checkAndProcessJobs, 5 * 60 * 1000); // Run every 5 minutes
 
 export { router };

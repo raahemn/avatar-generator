@@ -7,7 +7,33 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            position: relative; /* Make body a relative container for absolute positioning */
+        }
+        .home-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            z-index: 10; /* Ensure it's above other content */
+        }
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            text-align: center;
+            color: black;
+            margin-top: 60px; /* Ensure there's space for the button */
         }
         .job-list {
             margin-bottom: 20px; 
@@ -15,23 +41,31 @@
         .job-item {
             border: 1px solid #ddd;
             border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
         }
         .job-item.completed {
-            background-color: #f4f4f4;
+            background-color: #e0ffe0;
         }
         .job-item .status {
             font-weight: bold;
+            color: #007bff;
         }
         .job-item .view-generations {
-            margin-top: 10px;
             display: inline-block;
-            padding: 5px 10px;
+            padding: 8px 15px;
             background-color: #007bff;
             color: #fff;
             text-decoration: none;
-            border-radius: 3px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .job-item .view-generations:hover {
+            background-color: #0056b3;
         }
         .generations-grid {
             display: flex;
@@ -47,18 +81,18 @@
     </style>
 </head>
 <body>
+
     <h1>Current Jobs</h1>
     <div class="job-list">
         <% if (jobs.length > 0) { jobs.forEach(job => { %>
-            <div class="job-item <%= job.status === 'COMPLETED' ? 'COMPLETED' : '' %>" id="job-<%= job.job_id %>">
+            <div class="job-item <%= job.status === 'COMPLETED' ? 'completed' : '' %>" id="job-<%= job.job_id %>">
                 <p><strong>Job ID:</strong> <%= job.job_id %></p>
                 <p><strong>Prompt:</strong> <%= job.prompt %></p>
                 <p class="status" id="status-<%= job.job_id %>"><%= job.status %></p>
     
                 <% if (job.status === 'COMPLETED') { %>
-                    <a href="/jobs/generations/<%= job.job_id %>" class="view-generations">View Generations</a>
+                    <a href="/jobs/generations/<%= job.job_id %>?prompt=<%= encodeURIComponent(job.prompt) %>" class="view-generations">View Generations</a>
                 <% } %>
-    
             </div>
         <% }) } else { %>
             <p>No jobs found.</p>
@@ -81,11 +115,11 @@
                         statusElement.textContent = job.status;
     
                         if (job.status === "COMPLETED") {
-                            jobElement.classList.add("COMPLETED");
+                            jobElement.classList.add("completed");
     
                             if (!jobElement.querySelector(".view-generations")) {
                                 const link = document.createElement("a");
-                                link.href = `/jobs/generations/${job.job_id}?prompt=${encodeURIComponent(job.prompt)}`
+                                link.href = `/jobs/generations/${job.job_id}?prompt=${encodeURIComponent(job.prompt)}`;
                                 link.className = "view-generations";
                                 link.textContent = "View Generations";
                                 jobElement.appendChild(link);
@@ -100,7 +134,5 @@
     
         setInterval(pollJobStatus, 10000); // Poll every 10 seconds
     </script>
-    
-
 </body>
 </html>
