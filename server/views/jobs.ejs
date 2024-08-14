@@ -49,27 +49,58 @@
 <body>
     <h1>Current Jobs</h1>
     <div class="job-list">
-        <% if (jobs.length>0) {jobs.forEach(job => { %>
-            <div class="job-item <%= job.status === 'completed' ? 'completed' : '' %>">
+        <% if (jobs.length > 0) { jobs.forEach(job => { %>
+            <div class="job-item <%= job.status === 'COMPLETED' ? 'COMPLETED' : '' %>" id="job-<%= job.job_id %>">
                 <p><strong>Job ID:</strong> <%= job.job_id %></p>
-                <p class="status"><%= job.status %></p>
-                <% if (job.status === 'completed') { %>
-                    <a href="/generations/<%= job.jobId %>" class="view-generations">View Generations</a>
+                <p><strong>Prompt:</strong> <%= job.prompt %></p>
+                <p class="status" id="status-<%= job.job_id %>"><%= job.status %></p>
+    
+                <% if (job.status === 'COMPLETED') { %>
+                    <a href="/jobs/generations/<%= job.job_id %>" class="view-generations">View Generations</a>
                 <% } %>
+    
             </div>
-        <% })} else {  %>
+        <% }) } else { %>
             <p>No jobs found.</p>
-            <% } %>
+        <% } %>
     </div>
+    
+    <script>
+        async function pollJobStatus() {
+            console.log("Polling job statuses...");
+            try {
+                const response = await fetch("/jobs/status");
+                const data = await response.json();
+                const jobs = data.jobs;
+    
+                jobs.forEach(job => {
+                    const jobElement = document.getElementById(`job-${job.job_id}`);
+                    const statusElement = document.getElementById(`status-${job.job_id}`);
+    
+                    if (jobElement && statusElement) {
+                        statusElement.textContent = job.status;
+    
+                        if (job.status === "COMPLETED") {
+                            jobElement.classList.add("COMPLETED");
+    
+                            if (!jobElement.querySelector(".view-generations")) {
+                                const link = document.createElement("a");
+                                link.href = `/jobs/generations/${job.job_id}?prompt=${encodeURIComponent(job.prompt)}`
+                                link.className = "view-generations";
+                                link.textContent = "View Generations";
+                                jobElement.appendChild(link);
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error updating job statuses:", error);
+            }
+        }
+    
+        setInterval(pollJobStatus, 10000); // Poll every 10 seconds
+    </script>
+    
 
-    <!-- Include a section for displaying grid of images if a job is selected -->
-    <% if (selectedJobGenerations && selectedJobGenerations.length > 0) { %>
-        <h2>Generations for Job ID: <%= selectedJobId %></h2>
-        <div class="generations-grid">
-            <% selectedJobGenerations.forEach(image => { %>
-                <img src="<%= image %>" alt="Generated Image">
-            <% }) %>
-        </div>
-    <% } %>
 </body>
 </html>

@@ -26,7 +26,8 @@ router.post(
             const user = JSON.parse(JSON.stringify(decoded)).email;
             console.log("user", user);
 
-            const { prompt, useControlNet, numGenerations } = req.body;
+            const { prompt, useControlNet, numGenerations, negativePrompt } =
+                req.body;
             // console.log("prompt", prompt);
             // console.log("useControlNet", useControlNet);
             // console.log("req.files", req.files);
@@ -81,24 +82,26 @@ router.post(
 
             //For Runpod, just add api name field and inclose it all under input
             let runpod_body = {
-                width: 512,
-                height: 512,
-                prompt: "man in black jeans standing on the beach",
-                restore_faces: true,
-                negative_prompt:
-                    "(blurry) (unclear) (poor anatomy) (weird anatomy)",
-                seed: -1,
-                batch_size: numGenerations,
-                override_settings: {
-                    sd_model_checkpoint:
-                        "dreamshaper_8.safetensors [879db523c3]",
-                },
-                cfg_scale: 5,
-                sampler_name: "Euler",
-                num_inference_steps: 20,
-                email: "test@example.com",
-                alwayson_scripts: {
-                    reactor: { args: reactor_args },
+                input: {
+                    api_name: "txt2img",
+                    width: 512,
+                    height: 512,
+                    prompt: prompt,
+                    restore_faces: true,
+                    negative_prompt: negativePrompt,
+                    seed: -1,
+                    batch_size: numGenerations || 1,
+                    override_settings: {
+                        sd_model_checkpoint:
+                            "dreamshaper_8.safetensors [879db523c3]",
+                    },
+                    cfg_scale: 5,
+                    sampler_name: "Euler",
+                    num_inference_steps: 20,
+                    email: "test@example.com",
+                    alwayson_scripts: {
+                        reactor: { args: reactor_args },
+                    },
                 },
             };
 
@@ -124,8 +127,8 @@ router.post(
                 };
 
                 // Merge ControlNet arguments with existing alwayson_scripts
-                runpod_body.alwayson_scripts = {
-                    ...runpod_body.alwayson_scripts,
+                runpod_body.input.alwayson_scripts = {
+                    ...runpod_body.input.alwayson_scripts,
                     ...controlnetArgs,
                 };
             }
@@ -133,16 +136,7 @@ router.post(
             // Construct the request body for Runpod API
             console.log("Final request body", runpod_body);
 
-            // const apiResponse = await axios.post(
-            //     "https://api.runpod.ai/v2/baj4a9hr0n43pt/run",
-            //     runpod_body,
-            //     {
-            //         headers: {
-            //             Authorization: `Bearer ${process.env.RUNPOD_API_KEY}`,
-            //             "Content-Type": "application/json",
-            //         },
-            //     }
-            // );
+           
 
             // console.log("API response:", apiResponse.data);
 
@@ -154,15 +148,21 @@ router.post(
             // res.redirect(`/result?imageUrl=${encodeURIComponent(imageUrl)}`);
 
             let response = await axios.post(
-                "https://0f5ad6285e5316cb86.gradio.live/sdapi/v1/txt2img",
-                runpod_body
+                `https://api.runpod.ai/v2/${process.env.RUNPOD_ENDPOINT_ID}/run`,
+                runpod_body,
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.RUNPOD_API_KEY}`,
+                        "Content-Type": "application/json", // Include if your request body is JSON
+                    },
+                }
             );
 
             console.log(response.data);
 
             //Assuming Runpod Async Run returns only job id and status
-            const job_id = response.data.id
-            const status = response.data.status
+            const job_id = response.data.id;
+            const status = response.data.status;
 
             //Now, I want to store the job id and status in the firestore database
             const firestore = new Firestore({
@@ -172,62 +172,17 @@ router.post(
 
             const jobsCollection = firestore.collection("jobs");
 
+            
+
             const newJobRef = await jobsCollection.add({
                 user,
                 job_id,
+                prompt,
                 status,
                 createdAt: new Date(),
             });
 
-            res.send({ job_id, status });
-
-
-            const images = response.data.images;
-            const storage = new Storage();
-            const bucket = storage.bucket("mod2b-bucket");
-           
-
-            const imagesCollection = firestore.collection("images");
-
-            // Process each image
-            for (let i = 0; i < images.length; i++) {
-                const recvd_base64 = images[i];
-                const buffer = Buffer.from(recvd_base64, "base64");
-                const filename = `image-${user}-${Date.now()}-${i}.jpg`; // Add index to filename
-                const file = bucket.file(filename);
-
-               
-                await new Promise((resolve, reject) => {
-                    file.save(
-                        buffer,
-                        {
-                            metadata: {
-                                contentType: "image/jpeg", // Update this based on your image type
-                            },
-                        },
-                        (err) => {
-                            if (err) {
-                                console.error("Error uploading file:", err);
-                            } else {
-                                console.log(
-                                    "File uploaded successfully:",
-                                    filename
-                                );
-                            }
-                        }
-                    );
-                });
-
-               
-                await imagesCollection.add({
-                    user,
-                    filename,
-                    url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
-                    createdAt: new Date(),
-                });
-            }
-
-            res.send(prompt);
+            res.redirect("/jobs")
         } catch (error) {
             console.error("Error generating image:", error);
             res.status(500).send(
@@ -300,46 +255,44 @@ export { router };
 //     },
 // };
 
+// const recvd_base64 = response.data.images[0];
 
+// //here, upload the image to the google cloud storage bucket and store its metadata in the firestore database in the images collection.
+// const storage = new Storage();
+// const bucket = storage.bucket("mod2b-bucket");
 
-            // const recvd_base64 = response.data.images[0];
+// const buffer = Buffer.from(recvd_base64, "base64");
 
-            // //here, upload the image to the google cloud storage bucket and store its metadata in the firestore database in the images collection.
-            // const storage = new Storage();
-            // const bucket = storage.bucket("mod2b-bucket");
+// const filename = `image-${user}-${Date.now()}.jpg`;
+// const file = bucket.file(filename);
 
-            // const buffer = Buffer.from(recvd_base64, "base64");
+// file.save(
+//     buffer,
+//     {
+//         metadata: {
+//             contentType: "image/jpeg", // Update this based on your image type
+//         },
+//     },
+//     (err) => {
+//         if (err) {
+//             console.error("Error uploading file:", err);
+//         } else {
+//             console.log("File uploaded successfully.");
+//         }
+//     }
+// );
 
-            // const filename = `image-${user}-${Date.now()}.jpg`;
-            // const file = bucket.file(filename);
+// //save metadata of image in the images collection in firestore
+// const firestore = new Firestore({
+//     projectId: process.env.PROJECT_ID,
+//     databaseId: process.env.DATABASE_ID,
+// });
 
-            // file.save(
-            //     buffer,
-            //     {
-            //         metadata: {
-            //             contentType: "image/jpeg", // Update this based on your image type
-            //         },
-            //     },
-            //     (err) => {
-            //         if (err) {
-            //             console.error("Error uploading file:", err);
-            //         } else {
-            //             console.log("File uploaded successfully.");
-            //         }
-            //     }
-            // );
+// const imagesCollection = firestore.collection("images");
 
-            // //save metadata of image in the images collection in firestore
-            // const firestore = new Firestore({
-            //     projectId: process.env.PROJECT_ID,
-            //     databaseId: process.env.DATABASE_ID,
-            // });
-
-            // const imagesCollection = firestore.collection("images");
-
-            // const newImageRef = await imagesCollection.add({
-            //     user,
-            //     filename,
-            //     url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
-            //     createdAt: new Date(),
-            // });
+// const newImageRef = await imagesCollection.add({
+//     user,
+//     filename,
+//     url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
+//     createdAt: new Date(),
+// });
