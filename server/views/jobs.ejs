@@ -15,11 +15,11 @@
         }
         .home-button {
             position: absolute;
-            top: 20px;
+            top: 5px;
             left: 20px;
             display: inline-block;
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: green;
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
@@ -28,7 +28,7 @@
             z-index: 10; /* Ensure it's above other content */
         }
         .home-button:hover {
-            background-color: #0056b3;
+            background-color: rgb(3, 98, 3);
         }
         h1 {
             text-align: center;
@@ -81,7 +81,7 @@
     </style>
 </head>
 <body>
-
+    <a href="/" class="home-button">Home</a>
     <h1>Current Jobs</h1>
     <div class="job-list">
         <% if (jobs.length > 0) { jobs.forEach(job => { %>

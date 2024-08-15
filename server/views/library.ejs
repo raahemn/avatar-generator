@@ -11,11 +11,6 @@
             margin: 0;
             padding: 20px;
         }
-        h1 {
-            text-align: center;
-            color: #333333;
-            margin-bottom: 30px;
-        }
         .container {
             max-width: 1200px;
             margin: auto;
@@ -23,6 +18,28 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #333333;
+            margin: 0;
+        }
+        .home-button {
+            padding: 10px 20px;
+            background-color: green;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .home-button:hover {
+            background-color: rgb(3, 98, 3);
         }
         ul {
             list-style-type: none;
@@ -51,7 +68,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Image Library</h1>
+        <div class="header">
+            <h1>Image Library</h1>
+            <a href="/" class="home-button">Home</a>
+        </div>
         <div>
             <% if (urls.length > 0) { %>
                 <ul>

@@ -217,7 +217,7 @@ router.get("/library", async (req, res) => {
     const urls: string[] = [];
 
     for (const file of files) {
-        console.log("file", file);
+        // console.log("file", file);
         const [url] = await bucket.file(file).getSignedUrl({
             version: "v4",
             action: "read",
