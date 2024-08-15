@@ -50,7 +50,7 @@ async function test() {
     let req = {
         width: 512,
         height: 512,
-        prompt: "man in black jeans standing on the beach",
+        prompt: "man in red pants standing in front of a building",
         restore_faces: true,
         negative_prompt: "(blurry) (unclear) (poor anatomy) (weird anatomy)",
         seed: -1,
@@ -80,7 +80,7 @@ async function test() {
     console.log("Req", req);
 
     let res = await axios.post(
-        "https://1ae6abb0d016777eee.gradio.live/sdapi/v1/txt2img",
+        "https://2f084090e44cb2b953.gradio.live/sdapi/v1/txt2img",
         req
     );
 

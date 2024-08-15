@@ -52,7 +52,7 @@ router.post(
                 true, // Enable ReActor
                 "0", // Use the first face from the source image
                 "0", // Swap onto the first face in the generated image
-                "/home/jupyter/stable-diffusion-webui/models/insightface/inswapper_128.onnx", // Model path
+                "inswapper_128.onnx", // Model path
                 "CodeFormer", // Restore Face with CodeFormer
                 1, // Restore visibility value
                 true, // Restore face -> Upscale
@@ -230,65 +230,3 @@ router.get("/library", async (req, res) => {
 });
 
 export { router };
-
-// let runpod_body = {
-//     input: {
-//         api_name: "txt2img",
-//         prompt: prompt,
-//         restore_faces: true,
-//         negative_prompt: "(unclear image)",
-//         seed: -1,
-//         override_settings: {
-//             sd_model_checkpoint: "dreamshaper_8.safetensors",
-//         },
-//         cfg_scale: 5,
-//         sampler_index: "DDIM",
-//         num_inference_steps: 20,
-//         email: "test@example.com",
-
-//         //Use controlnet and reactor
-//         alwayson_scripts: { reactor: { args: reactor_args } },
-//     },
-// };
-
-// const recvd_base64 = response.data.images[0];
-
-// //here, upload the image to the google cloud storage bucket and store its metadata in the firestore database in the images collection.
-// const storage = new Storage();
-// const bucket = storage.bucket("mod2b-bucket");
-
-// const buffer = Buffer.from(recvd_base64, "base64");
-
-// const filename = `image-${user}-${Date.now()}.jpg`;
-// const file = bucket.file(filename);
-
-// file.save(
-//     buffer,
-//     {
-//         metadata: {
-//             contentType: "image/jpeg", // Update this based on your image type
-//         },
-//     },
-//     (err) => {
-//         if (err) {
-//             console.error("Error uploading file:", err);
-//         } else {
-//             console.log("File uploaded successfully.");
-//         }
-//     }
-// );
-
-// //save metadata of image in the images collection in firestore
-// const firestore = new Firestore({
-//     projectId: process.env.PROJECT_ID,
-//     databaseId: process.env.DATABASE_ID,
-// });
-
-// const imagesCollection = firestore.collection("images");
-
-// const newImageRef = await imagesCollection.add({
-//     user,
-//     filename,
-//     url: `https://storage.googleapis.com/mod2b-bucket/${filename}`,
-//     createdAt: new Date(),
-// });
