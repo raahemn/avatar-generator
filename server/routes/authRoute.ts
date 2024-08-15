@@ -36,7 +36,7 @@ router.get("/callback", async (req, res) => {
     const redirectUri = "http://localhost:3000/auth/callback";
 
     const code = req.query.code as string;
-    console.log("Received code:", code);
+    // console.log("Received code:", code);
 
     try {
         const tokenResponse = await axios.post(
@@ -55,7 +55,7 @@ router.get("/callback", async (req, res) => {
             }
         );
 
-        console.log("Token response:", tokenResponse.data);
+        // console.log("Token response:", tokenResponse.data);
 
         const idToken = tokenResponse.data.id_token;
         const accessToken = tokenResponse.data.access_token;
@@ -74,7 +74,7 @@ router.get("/callback", async (req, res) => {
             }
         );
 
-        console.log("User info response:", userInfoResponse.data);
+        // console.log("User info response:", userInfoResponse.data);
 
         const { name, email } = userInfoResponse.data;
         console.log(`User: ${name}, Email: ${email}`);
@@ -114,7 +114,7 @@ router.get("/callback", async (req, res) => {
             secure: false,
         });
 
-        console.log("setting token", token);
+        // console.log("setting token", token);
 
         // Redirect to the homepage with the cookie
         res.redirect("/");
@@ -128,7 +128,7 @@ router.get("/callback", async (req, res) => {
 router.get("/logout", async (req, res) => {
     // const idToken = req.cookies.idToken;
 
-    console.log("Inside logout");
+    // console.log("Inside logout");
     res.clearCookie("token");
 
     //in order to revoke access token, i will have to store idtoken in cookie as well which Ill do if i have enough time for extra security otherwise this is fine

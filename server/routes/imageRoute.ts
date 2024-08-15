@@ -156,7 +156,7 @@ router.post(
                 }
             );
 
-            console.log(response.data);
+            console.log("Response from Runpod Async:", response.data);
 
             //Assuming Runpod Async Run returns only job id and status
             const job_id = response.data.id;
@@ -188,16 +188,11 @@ router.post(
     }
 );
 
-router.get("/result", (req, res) => {
-    const { imageUrl } = req.query;
-
-    res.render("result", { title: "Generated Image", imageUrl });
-});
 
 router.get("/library", async (req, res) => {
     const user = req.body.user;
 
-    console.log("user", user);
+    console.log("Library for user:", user);
 
     //first, get the filenames of all the images that belong to this user from the firestore collection
     const firestore = new Firestore({

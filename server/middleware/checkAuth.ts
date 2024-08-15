@@ -26,7 +26,7 @@ const checkAuth = (req: Request, res: Response, next: NextFunction) => {
 
         req.body.user = JSON.parse(JSON.stringify(decoded)).email;
 
-        console.log("decoded email", req.body.user);
+        // console.log("decoded email", req.body.user);
 
         // console.log("Request body in middleware", req);
 
