@@ -25,7 +25,7 @@ app.use(cookieParser());
 
 
 app.get("/", checkAuth, (req, res) => {
-    console.log("home req", req.cookies);
+    // console.log("home req", req.cookies);
     res.render("index", { title: "Home" });
 });
 

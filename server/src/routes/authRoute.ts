@@ -62,7 +62,7 @@ router.get("/callback", async (req, res) => {
 
         // Use the idToken to authenticate the user, create a session, etc.
         // console.log("Received idToken:", idToken);
-        console.log("Received accessToken:", accessToken);
+        // console.log("Received accessToken:", accessToken);
 
         // Get user info using the access token
         const userInfoResponse = await axios.get(
@@ -78,6 +78,13 @@ router.get("/callback", async (req, res) => {
 
         const { name, email } = userInfoResponse.data;
         console.log(`User: ${name}, Email: ${email}`);
+
+        const allowedDomains = ["@jetrr.com", "@gaper.io"];
+        const emailDomain = email.substring(email.lastIndexOf("@"));
+
+        if (!allowedDomains.includes(emailDomain)) {
+            return res.status(403).send("Access denied: email domain not allowed.");
+        }
 
         //Store this data in my firestore database
         const firestore = new Firestore({

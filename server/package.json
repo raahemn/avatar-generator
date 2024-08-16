@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.ts"
+    "dev": "nodemon src/index.ts",
+    "build": "tsc "
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "axios": "^1.7.3",
     "cookie-parser": "^1.4.6",
     "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
