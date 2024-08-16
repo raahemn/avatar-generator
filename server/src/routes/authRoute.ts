@@ -12,7 +12,7 @@ dotenv.config();
 router.get("/", (req, res) => {
     const clientId = process.env.CLIENT_ID;
     const clientSecret = process.env.CLIENT_SECRET;
-    const redirectUri = "http://localhost:3000/auth/callback";
+    const redirectUri = process.env.REDIRECT_URI;
 
     //Implement the auth using Google OAuth2.0
     const authorizationUrl =
