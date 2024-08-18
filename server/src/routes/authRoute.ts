@@ -14,6 +14,8 @@ router.get("/", (req, res) => {
     const clientSecret = process.env.CLIENT_SECRET;
     const redirectUri = process.env.REDIRECT_URI;
 
+    console.log("Redirect uri:", redirectUri);
+
     //Implement the auth using Google OAuth2.0
     const authorizationUrl =
         "https://accounts.google.com/o/oauth2/v2/auth?" +
@@ -33,7 +35,7 @@ router.get("/", (req, res) => {
 router.get("/callback", async (req, res) => {
     const clientId = process.env.CLIENT_ID;
     const clientSecret = process.env.CLIENT_SECRET;
-    const redirectUri = "http://localhost:3000/auth/callback";
+    const redirectUri = process.env.REDIRECT_URI;
 
     const code = req.query.code as string;
     // console.log("Received code:", code);
